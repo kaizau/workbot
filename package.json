@@ -1,21 +1,16 @@
 {
-  "name": "starter-slapp-app",
+  "name": "workbot",
   "version": "1.0.0",
-  "description": "Basic Slack app using the Slapp library and Slack Events API",
+  "private": true,
+  "description": "",
   "scripts": {
     "watch": "nodemon server.js",
     "test": "standard"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/BeepBoopHQ/starter-slapp-app.git"
+    "url": "git+https://github.com/kaizau/workbot"
   },
-  "author": "Brad Harris",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/BeepBoopHQ/starter-slapp-app/issues"
-  },
-  "homepage": "https://github.com/BeepBoopHQ/starter-slapp-app#readme",
   "dependencies": {
     "express": "^4.14.0",
     "nodemon": "^1.11.0",
