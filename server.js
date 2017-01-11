@@ -4,38 +4,29 @@ const express = require('express')
 const Slapp = require('slapp')
 const Context = require('slapp-context-beepboop')
 const ConvoStore = require('slapp-convo-beepboop')
+const Chronos = require('./lib/chronos')
+const {startResponse, planning, debrief} = require('./src/messages')
 
+require('dotenv').config()
 var port = process.env.PORT || 3000
 
-var slapp = Slapp({
+const slapp = Slapp({
   verify_token: process.env.SLACK_VERIFY_TOKEN,
   convo_store: ConvoStore(),
   context: Context(),
   log: true
 })
 
-const startResponse = [
-  `Excellent. Let's get going.`,
-  `Time to get down to business.`,
-  `I was wondering when you'd ask.`,
-  `Brilliant. Let's dive in.`,
-  `Ready when you are.`
-]
+const server = slapp.attachToExpress(express())
 
-const planning = [
-  `What do you plan to accomplish this cycle?`,
-  `How will you get started?`,
-  `Are there hazards present?`,
-  `How's your energy? Morale?`,
-  `Noted. Cycle on!`
-]
-
-const debrief = [
-  `Goal completed?`,
-  `Were there any distractions?`,
-  `Things to improve for next cycle?`,
-  `Energy / morale?`
-]
+const app = {
+  slapp,
+  server,
+  chronos: Chronos({
+    beepboop_project_id: process.env.BEEPBOOP_PROJECT_ID,
+    beepboop_token: process.env.BEEPBOOP_TOKEN,
+  })
+}
 
 slapp.message('^start', ['direct_mention', 'direct_message'], startWorkCycle)
 slapp.command('/work', /^\s*start\s*$/, startWorkCycle)
@@ -71,7 +62,6 @@ slapp.route('planning4', msg => {
 })
 
 // Start
-var server = slapp.attachToExpress(express())
 server.listen(port, (err) => {
   if (err) { return console.error(err) }
   console.log(`Listening on port ${port}`)
