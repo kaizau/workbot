@@ -20,7 +20,8 @@ const debrief = [
   `Goal completed?`,
   `Were there any distractions?`,
   `Things to improve for next cycle?`,
-  `Energy / morale?`
+  `Energy / morale?`,
+  `Great job.`
 ]
 
 module.exports = {
