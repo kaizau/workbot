@@ -3,30 +3,71 @@
 const express = require('express')
 const Slapp = require('slapp')
 const Context = require('slapp-context-beepboop')
+const ConvoStore = require('slapp-convo-beepboop')
 
 var port = process.env.PORT || 3000
 
 var slapp = Slapp({
-  //verify_token: process.env.SLACK_VERIFY_TOKEN,
-  //convo_store: ConvoStore(),
+  verify_token: process.env.SLACK_VERIFY_TOKEN,
+  convo_store: ConvoStore(),
   context: Context(),
   log: true
 })
 
-slapp.message('^(hi|hello|hey).*', ['direct_mention', 'direct_message'], (msg, text, greeting) => {
+const startResponse = [
+  `Excellent. Let's get going.`,
+  `Time to get down to business.`,
+  `I was wondering when you'd ask.`,
+  `Brilliant. Let's dive in.`,
+  `Ready when you are.`
+]
+
+const planning = [
+  `What do you plan to accomplish this cycle?`,
+  `How will you get started?`,
+  `Are there hazards present?`,
+  `How's your energy? Morale?`,
+  `Noted. Cycle on!`
+]
+
+const debrief = [
+  `Goal completed?`,
+  `Were there any distractions?`,
+  `Things to improve for next cycle?`,
+  `Energy / morale?`
+]
+
+slapp.message('^start', ['direct_mention', 'direct_message'], startWorkCycle)
+slapp.command('/work', /^\s*start\s*$/, startWorkCycle)
+
+function startWorkCycle(msg) {
   msg
-    .say(`${greeting}, how are you?`)
-    .route('handleHowAreYou')
+    .say(startResponse)
+    .say(planning[0])
+    .route('planning1')
+}
+
+slapp.route('planning1', msg => {
+  msg
+    .say(planning[1])
+    .route('planning2')
 })
 
-slapp.route('handleHowAreYou', (msg) => {
-  msg.say(['Me too', 'Noted', 'That is interesting'])
+slapp.route('planning2', msg => {
+  msg
+    .say(planning[2])
+    .route('planning3')
 })
 
-slapp.message('.*', ['direct_mention', 'direct_message'], (msg) => {
-  if (Math.random() < 0.4) {
-    msg.say([':wave:', ':pray:', ':raised_hands:'])
-  }
+slapp.route('planning3', msg => {
+  msg
+    .say(planning[3])
+    .route('planning4')
+})
+
+slapp.route('planning4', msg => {
+  msg
+    .say(planning[4])
 })
 
 // Start
