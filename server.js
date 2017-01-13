@@ -28,7 +28,9 @@ const app = {
   })
 }
 
-const startString = '^\s*start\s*(\d*)'
+// TODO Add a help command
+
+const startString = 'start (\\d*)'
 slapp.message(startString, ['direct_mention', 'direct_message'], handleStart)
 slapp.command('/work', startString, handleStart)
 
@@ -36,20 +38,17 @@ slapp.command('/work', startString, handleStart)
 // Plan Cycle
 //
 
-// TODO
-// If passed duration, jump straight into it.
-// If not, show action prompt
-
 function handleStart(msg, text, duration) {
-  console.log(text, duration);
   msg.say(startResponse)
+  duration = duration ? parseInt(duration, 10) : false
 
-  if (!duration) {
+  // TODO Better handling of error cases
+  if (!duration || isNaN(duration) || duration > 120) {
     msg.say({
-      text: '',
+      text: 'How long of a cycle?',
       attachments: [
         {
-          text: 'How long of a cycle?',
+          text: '',
           fallback: 'How long of a cycle?',
           callback_id: 'handleDuration',
           actions: [
@@ -70,10 +69,22 @@ slapp.route('handleDuration', msg => {
   let duration;
 
   if (msg.type !== 'action') {
-    console.log(msg)
-    return
+    duration = parseInt(msg.body.event.text, 10)
+
+    if (isNaN(duration)) {
+      msg
+        .say(`Pardon, I didn't get that. How many minutes would you like this cycle to last?`)
+        .route('handleDuration')
+      return
+    } else if (duration > 120) {
+      msg
+        .say(`I admire your ambition, but shorter cycles tend to produce better results.`)
+        .say(`Two hours is the maximum that I'd recommend. Try again?`)
+        .route('handleDuration')
+      return
+    }
   } else {
-    duration = msg.body.actions[0].value
+    duration = parseInt(msg.body.actions[0].value, 10)
   }
 
   msg
@@ -81,15 +92,14 @@ slapp.route('handleDuration', msg => {
       text: '',
       delete_original: true
     })
-    .say(`Okay, ${duration} minutes it is.`)
 
   startPlanning(msg, duration)
 })
 
 function startPlanning(msg, duration) {
   const state = {duration}
-  console.log('STARTING', state)
   msg
+    .say(`Okay, ${duration} minutes it is.`)
     .say(planning[0])
     .route('planning1', state, 180)
 }
@@ -116,7 +126,7 @@ slapp.route('planning4', (msg, state) => {
   msg
     .say(planning[4])
 
-  schedule(msg, parseInt(state.duration, 10), 'start_debrief', {
+  schedule(msg, state.duration, 'start_debrief', {
     conversation_id: msg.conversation_id,
     duration: state.duration
   }, (error, task) => {
@@ -130,10 +140,9 @@ slapp.route('planning4', (msg, state) => {
 
 slapp.event('start_debrief', msg => {
   // Workaround a bug in Slapp Chronos where convo_id is mangled
-  const payload = msg.body.payload
+  const payload = msg.body.event.payload
   msg.conversation_id = payload.conversation_id
 
-  console.log(payload)
   msg
     .say(debrief[0])
     .route('debrief1', null, 180)
