@@ -1,4 +1,4 @@
+# https://beepboophq.com/docs/article/bot-yml
 name: workbot
 description: UW Workbot, at your service.
-avatar: .beepboop/avatar.png
-# To learn everything supported in the bot.yml file, visit https://beepboophq.com/docs/article/bot-yml
+avatar: src/icon.png
