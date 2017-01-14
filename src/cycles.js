@@ -22,7 +22,7 @@ function abortableRoute(route, callback) {
 
     if (text && /^(end|nvm|stop|abort|cancel)/.test(text)) {
       msg.cancel()
-      msg.say('Okay, cancelled. Until next time.')
+      msg.say('Roger that, cancelling this cycle. Until next time.')
       return
     }
 
@@ -39,10 +39,10 @@ function handleStart(msg, text, duration) {
   // TODO Better handling of error cases
   if (!duration || isNaN(duration) || duration > 120) {
     msg.say({
-      text: 'How long of a cycle?',
+      text: 'How long is this cycle? (up to 120 minutes)',
       attachments: [
         {
-          text: 'Type your answer in minutes or choose from below:',
+          text: 'Choose from below or type an answer in minutes:',
           fallback: 'Type your answer in minutes or choose from below:',
           callback_id: 'handleDuration',
           actions: [
@@ -72,8 +72,7 @@ abortableRoute('handleDuration', msg => {
       return
     } else if (duration > 120) {
       msg
-        .say(`I admire your ambition, but shorter cycles tend to produce better results.`)
-        .say(`Two hours is the maximum that I'd recommend. Try again?`)
+        .say(`I admire your ambition, but shorter cycles tend to produce better results. Try again?`)
         .route('handleDuration')
       return
     }
@@ -93,7 +92,7 @@ abortableRoute('handleDuration', msg => {
 function startPlanning(msg, duration) {
   const state = {duration}
   msg
-    .say(`Okay, ${duration} minutes it is.`)
+    .say(`Starting a ${duration} minute work cycle. Let's get planned:`)
     .say(planning[0])
     .route('planning1', state, 180)
 }
